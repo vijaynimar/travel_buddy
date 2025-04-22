@@ -8,7 +8,7 @@ const tourSchema=new Schema({
     description:{type:String},
     images:[String],
     totalCapacity:{type:Number,required:true},
-    inRolled:[{
+    enrolled:[{
          type:Schema.Types.ObjectId,
          ref:"User"
     }],
