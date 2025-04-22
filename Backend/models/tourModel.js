@@ -22,3 +22,6 @@ const tourSchema=new Schema({
         }
     ]
 })
+
+const tourAdd=model("tourAdd",tourSchema)
+export {tourAdd}
