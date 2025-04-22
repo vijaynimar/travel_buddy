@@ -18,7 +18,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(morgan("dev"));
+app.use(morgan("common"));
 app.use(authRouter);
 
 // Connecting the mongoDB and listen at port 

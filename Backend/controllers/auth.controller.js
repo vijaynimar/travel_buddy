@@ -102,15 +102,15 @@ export const loginUser = async (req, res) => {
 
         // Creating accessToken Token
         const accessToken = jwt.sign(
-            { id: user._id, name: user.name, role: user.role },
+            { id: user._id, email:user.email},
             process.env.JWT_ACCESS_PASS,
             { expiresIn: "1h" }
         );
 
         // Creating refreshToken
         const refreshToken = jwt.sign(
-            { id: user._id, name: user.name },
-            process.env.JWT_REFRESH_PASS,
+            { id: user._id, email:user.email},
+            process.env.JWT_ACCESS_PASS,
             { expiresIn: "7d" }
         );
 
