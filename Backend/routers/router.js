@@ -7,7 +7,7 @@ authRouter.post("/signup", signUpUser);
 authRouter.post("/login", loginUser);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password/:token", checkForToken, resetPassword);
-authRouter.post("/", async (req, res) => {
+authRouter.get("/", async (req, res) => {
     try {
         return res.json({ msg: "This is homePage." });
     } catch (error) {
