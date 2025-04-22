@@ -27,7 +27,7 @@ export const tourAdd=async(req,res)=>{
         startLocation,endLocation,destinations,description,totalCapacity,startDate,endDate,price
     })
     await newTour.save()
-    res.send("sucess")
+    res.status(201).json({message:"Tour uploaded sucessfully"})
 
     }catch(err){
         console.log(err);
