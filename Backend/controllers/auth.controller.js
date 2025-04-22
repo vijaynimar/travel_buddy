@@ -102,15 +102,15 @@ export const loginUser = async (req, res) => {
 
         // Creating accessToken Token
         const accessToken = jwt.sign(
-            { id: user._id, name: user.name, role: user.role },
+            { id: user._id, email:user.email},
             process.env.JWT_ACCESS_PASS,
             { expiresIn: "1h" }
         );
 
         // Creating refreshToken
         const refreshToken = jwt.sign(
-            { id: user._id, name: user.name },
-            process.env.JWT_REFRESH_PASS,
+            { id: user._id, email:user.email},
+            process.env.JWT_ACCESS_PASS,
             { expiresIn: "7d" }
         );
 
@@ -250,12 +250,12 @@ export const resetPassword = async (req, res) => {
 // MiddleWare to check for the token.
 export const checkForToken = async (req, res, next) => {
   
-    console.log("Entered in token Verification.");
+    // console.log("Entered in token Verification.");
 
     // Get the accessToken from the cookies
     const accessToken = req.cookies.accessToken;
-    console.log("Request headers:", req.headers);
-    console.log("All cookies:", accessToken);
+    // console.log("Request headers:", req.headers);
+    // console.log("All cookies:", accessToken);
 
     // If accessToken is present then decode it and get the user data from it and save into the req.user
     if (accessToken) {
@@ -283,7 +283,7 @@ export const checkForToken = async (req, res, next) => {
 
             // Get the refreshToken
             const refreshToken = req.cookies["refreshToken"];
-            console.log("refreshToken", refreshToken);
+            // console.log("refreshToken", refreshToken);
 
             if (!refreshToken) {
                 console.log("Neither Access nor Refresh token is present");
@@ -293,7 +293,7 @@ export const checkForToken = async (req, res, next) => {
             // Decode the the refreshToken 
             const decode = jwt.verify(refreshToken, process.env.JWT_REFRESH_PASS);
 
-            console.log(decode);
+            // console.log(decode);
 
             // Create a new accessToken 
             const newAccessToken = jwt.sign(

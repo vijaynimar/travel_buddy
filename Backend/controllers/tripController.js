@@ -1,7 +1,7 @@
 
 export const getFavorites = async (req, res) => {
     try {
-
+        console.log("4");
         // Step 1: Get the authenticated user
         const user = req.user;
         console.log({ fav: user.favorite });

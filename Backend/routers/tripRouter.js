@@ -1,12 +1,20 @@
 import express from "express";
 const tripRouter = express.Router();
-import { checkForToken } from "../controllers/auth.controller";
-import { addFavorites, removeFavorite } from "../controllers/tripController";
-import { AdminOnly } from "../middlewares/adminOnly";
+import { checkForToken } from "../controllers/auth.controller.js";
+import { addFavorites, removeFavorite } from "../controllers/tripController.js";
+// import { AdminOnly } from "../middlewares/adminOnly";
+import { tourAdd } from "../controllers/tripMainController.js";
+import { multerPhotos } from "../middlewares/multer.js";
 
+//Adding tour
+tripRouter.post("/addTour",multerPhotos,checkForToken,tourAdd)
+tripRouter.get("/",(req,res)=>{
+    res.send("vijay nimar")
+})
 // Adding and removing from the favorite.
-tripRouter.post("/favorites", checkForToken, addFavorites);
+// tripRouter.post("/favorites", checkForToken, addFavorites);
 
 // Removing from the favorite list
-tripRouter.delete("/favorites/:id", checkForToken, removeFavorite);
+// tripRouter.delete("/favorites/:id", checkForToken, removeFavorite);
 
+export {tripRouter}
