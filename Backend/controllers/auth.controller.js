@@ -223,13 +223,12 @@ export const resetPassword = async (req, res) => {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
 
-
+        
         // decode the resetToken  
         const decode = jwt.verify(token, process.env.JWT_RESET_PASS);
         console.log(decode)
         // Get the user record from its id.
         const user = await User.findOne({ _id: decode.id });
-
 
         // Hash the Password
         const hashPassword = await argon2.hash(password);
