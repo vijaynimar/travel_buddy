@@ -21,6 +21,7 @@ export const tourAdd=async(req,res)=>{
             fs.unlinkSync(filePath)
         } 
     }
+    res.send(url)
     const newTour=new tour({
         admin:token.email,
         images:url,

@@ -15,5 +15,4 @@ const storage = multer.diskStorage({
   },
 });
 
-export const multerPhotos = multer({ storage: storage }).array("photos", 5); 
-// export const profileMulter=multer({storage:storage})
+export const multerPhotos = multer({ storage: storage }).array("photos", 5);
