@@ -1,10 +1,10 @@
-import { Schema ,model} from "mongoose";
+import { Schema ,Types,model} from "mongoose";
 
 const tourSchema=new Schema({
     admin:{type:String,required:true},
-    start:{type:String,required:true},
-    end:{type:String,required:true},
-    destinations:[string],
+    startLocation:{type:String,required:true},
+    endLocation:{type:String,required:true},
+    destinations:[String],
     description:{type:String},
     images:[String],
     totalCapacity:{type:Number,required:true},
@@ -23,5 +23,5 @@ const tourSchema=new Schema({
     ]
 })
 
-const tourAdd=model("tourAdd",tourSchema)
-export {tourAdd}
+const tour=model("tour",tourSchema)
+export {tour}
