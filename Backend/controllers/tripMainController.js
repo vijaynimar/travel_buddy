@@ -10,7 +10,6 @@ v2.config({
 
 export const tourAdd = async (req, res) => {
     const user = req.user
-    console.log("line12");
     const { startLocation, endLocation, destinations, description, totalCapacity, startDate, endDate, price } = req.body
     try {
         let url = [];
@@ -22,7 +21,6 @@ export const tourAdd = async (req, res) => {
                 fs.unlinkSync(filePath)
             }
         }
-
         const newTour = new Tour({
             admin: user.email,
             images: url,
@@ -150,7 +148,9 @@ export const showRequests = async (req, res) => {
     try {
         let tourId = req.params.tourId;
         let tourDetail = await Tour.findById(tourId);
-
+        if(tourDetail.admin!=user.email){
+            return res.status(404).json({message:"Only admin can see requests"})
+        }
         // If the Id is not present in the tour collection.
         if (tourDetail.length <= 0) {
             return res.status(404).json({ message: "Tour not found." });

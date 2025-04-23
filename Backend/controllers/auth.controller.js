@@ -356,3 +356,19 @@ export const showProfile=async(req,res)=>{
         res.status(500).json({messge:"Internal server error in show Profile"})
     }
 }
+
+export const editProfile=async(req,res)=>{
+    const user=req.user
+    const {name,phone}=req.body
+    let profilePhoto;
+    if(req.file){
+        profilePhoto=req.file.path
+    }
+    try{
+
+
+
+    }catch(err){
+        return res.status(500).json({message:"Internal server error in editProfile"})
+    }
+}
