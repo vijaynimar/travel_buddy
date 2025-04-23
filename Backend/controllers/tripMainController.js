@@ -9,7 +9,7 @@ v2.config({
 })
 
 export const tourAdd = async (req, res) => {
-    const token = req.user
+    const user = req.user
     console.log("line12");
     const { startLocation, endLocation, destinations, description, totalCapacity, startDate, endDate, price } = req.body
     try {
@@ -22,14 +22,18 @@ export const tourAdd = async (req, res) => {
                 fs.unlinkSync(filePath)
             }
         }
-       
+
         const newTour = new Tour({
-            admin: token.email,
+            admin: user.email,
             images: url,
             startLocation, endLocation, destinations, description, totalCapacity, startDate, endDate, price
         })
-        await newTour.save()
-       return res.status(201).json({ message: "Tour uploaded sucessfully" })
+        await newTour.save();
+
+        user.createdTours.push(newTour);
+        await user.save();
+
+        return res.status(201).json({ message: "Tour uploaded sucessfully" })
 
     } catch (err) {
         console.log(err);
@@ -51,15 +55,17 @@ export const showTours = async (req, res) => {
                 select: "_id startLocation endLocation startDate endDate price totalCapacity destinations description images"
             });
 
+        console.log({ tours })
+
+
         if (!tours || tours.createdTours.length === 0) {
             return res.status(404).json({ message: "User not found or no created any tours yet." });
         }
 
-        console.log({ tours })
 
         return res.status(200).json({
             message: "Your all created tours",
-            createdTours: tours[0].createdTours
+            createdTours: tours.createdTours
         });
 
     } catch (err) {
