@@ -6,11 +6,15 @@ import "dotenv/config";
 import { dbConnection } from "./config/dbConnection.js";
 import { authRouter } from "./routers/router.js";
 import { tripRouter } from "./routers/tripRouter.js";
+<<<<<<< HEAD
 import path from "path";
 import { fileURLToPath } from "url";
 
 
 
+=======
+import { ai } from "./routers/aiRoute.js";
+>>>>>>> ba0db2a27b28c73533ed0792ff8dab3b4950ea8c
 const app = express();
 app.use(cookieParser());
 const frontendUrl = ["", "http://localhost:3000"];
@@ -38,6 +42,7 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 // app.use(morgan("common"));
+app.use(ai)
 app.use(authRouter);
 app.use(tripRouter)
 

@@ -2,7 +2,15 @@ import { User } from "../models/userModel.js";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import argon2 from "argon2";
+import { Tour } from "../models/tourModel.js";
 import "dotenv/config";
+import fs from "fs"
+import { v2 } from "cloudinary";
+v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
 
 
 // Transporter for nodemailer
@@ -326,3 +334,60 @@ export const checkForToken = async (req, res, next) => {
 }
 
 
+export const showProfile=async(req,res)=>{
+    const userId = req.user._id
+    // console.log(userId);
+    try{
+        const userProfile=await User.findById(userId).select("-resetToken -password -__v")
+        let tourcreated=[]
+        if (Array.isArray(userProfile.createdTours) && userProfile.createdTours.length > 0) {
+            for(let i=0;i<userProfile.createdTours.length;i++){
+                let tour=await Tour.findById(userProfile.createdTours[i])
+                tourcreated.push(tour)
+            }
+        }
+       
+        let enrlore=[]
+        if (Array.isArray(userProfile.enrollerTours) && userProfile.enrollerTours.length > 0) {
+            for (const tourId of userProfile.enrollerTours) {
+                const tour = await Tour.findById(tourId);
+                if (tour) enrlore.push(tour);
+            }
+        }
+      
+        userProfile.createdTours=tourcreated
+        userProfile.enrolled=enrlore
+        res.status(200).json({data:userProfile})
+    }catch(err){
+        console.log(err);
+        res.status(500).json({messge:"Internal server error in show Profile"})
+    }
+}
+
+export const editProfile=async(req,res)=>{
+    console.log(req.user);
+    const user=req.user._id
+    const {name,phone}=req.body
+    try{
+        let updateObj={}
+        if(name){
+            updateObj.name=name
+        }
+        if(phone){
+            updateObj.phone=phone
+        }
+        let picUrl=""
+        if(req.file){
+            let cloudData=await v2.uploader.upload(req.file.path)
+            picUrl=cloudData.secure_url
+            updateObj.profilePicture=picUrl
+            fs.unlinkSync(req.file.path)
+        }
+        await User.findByIdAndUpdate(user,updateObj,{new:true})
+        res.status(200).json({message:"Profile updated sucessfully"})
+
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({message:"Internal server error in editProfile"})
+    }
+}

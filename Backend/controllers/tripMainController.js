@@ -24,9 +24,13 @@ v2.config({
 // );
 
 export const tourAdd = async (req, res) => {
+<<<<<<< HEAD
     const user = req.user;
     console.log({ user });
     console.log("line12");
+=======
+    const user = req.user
+>>>>>>> ba0db2a27b28c73533ed0792ff8dab3b4950ea8c
     const { startLocation, endLocation, destinations, description, totalCapacity, startDate, endDate, price } = req.body
     try {
         let url = [];
@@ -38,7 +42,6 @@ export const tourAdd = async (req, res) => {
                 fs.unlinkSync(filePath)
             }
         }
-
         const newTour = new Tour({
             admin: user.email,
             images: url,
@@ -150,8 +153,8 @@ export const sendReq = async (req, res) => {
         }
         // Check if the tour is already ended
         const currDate = new Date();
-        if (new Date(tourDetail.endDate) < currDate) {
-            return res.status(400).json({ message: "This tour has already ended." });
+        if (new Date(tourDetail.startDate) < currDate) {
+            return res.status(400).json({ message: "This tour has already started you can't join this tour." });
         }
 
         // Check if tour is full
@@ -187,7 +190,9 @@ export const showRequests = async (req, res) => {
         let tourId = req.params.tourId;
         let tourDetail = await Tour.findById(tourId);
 
-        console.log({ tourId });
+        if (tourDetail.admin != user.email) {
+            return res.status(404).json({ message: "Only admin can see requests" })
+        }
 
         // If the Id is not present in the tour collection.
         if (tourDetail.length <= 0) {
@@ -225,8 +230,8 @@ export const approveReq = async (req, res) => {
         let tourId = req.params.tourId;
         let reqId = req.params.reqId;
 
-        console.log({ tourId });
-        console.log({ reqId });
+        // console.log({ tourId });
+        // console.log({ reqId });
         // console.log({ user });
 
         let tourDetail = await Tour.findById(tourId);
