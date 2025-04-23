@@ -10,7 +10,7 @@ authRouter.post("/login", loginUser);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password/:token", checkForToken, resetPassword);
 authRouter.get("/showProfile",checkForToken,showProfile)
-authRouter.post("/profileEdit",profile,editProfile)
+authRouter.post("/profileEdit",profile,checkForToken,editProfile)
 authRouter.get("/", async (req, res) => {
     try {
         return res.json({ msg: "This is homePage." });

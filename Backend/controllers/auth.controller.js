@@ -4,6 +4,13 @@ import jwt from "jsonwebtoken";
 import argon2 from "argon2";
 import { Tour } from "../models/tourModel.js";
 import "dotenv/config";
+import fs from "fs"
+import { v2 } from "cloudinary";
+v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
 
 
 // Transporter for nodemailer
@@ -358,17 +365,29 @@ export const showProfile=async(req,res)=>{
 }
 
 export const editProfile=async(req,res)=>{
-    const user=req.user
+    console.log(req.user);
+    const user=req.user._id
     const {name,phone}=req.body
-    let profilePhoto;
-    if(req.file){
-        profilePhoto=req.file.path
-    }
     try{
-
-
+        let updateObj={}
+        if(name){
+            updateObj.name=name
+        }
+        if(phone){
+            updateObj.phone=phone
+        }
+        let picUrl=""
+        if(req.file){
+            let cloudData=await v2.uploader.upload(req.file.path)
+            picUrl=cloudData.secure_url
+            updateObj.profilePicture=picUrl
+            fs.unlinkSync(req.file.path)
+        }
+        await User.findByIdAndUpdate(user,updateObj,{new:true})
+        res.status(200).json({message:"Profile updated sucessfully"})
 
     }catch(err){
+        console.log(err);
         return res.status(500).json({message:"Internal server error in editProfile"})
     }
 }
