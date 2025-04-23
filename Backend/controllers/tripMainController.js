@@ -43,6 +43,7 @@ export const tourAdd = async (req, res) => {
 
 
 
+// Show the user's created tours
 export const showTours = async (req, res) => {
     let id = req.user.id;
     try {
@@ -75,17 +76,35 @@ export const showTours = async (req, res) => {
 }
 
 
+// Show the all tours available on the site.
+export const showAllTours = async (req, res) => {
+    try {
+
+        let tours = await Tour.find();
+        // console.log({ tours })
+
+        return res.status(200).json({
+            message: "All tours present on the site.",
+            createdTours: tours
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ err: "server error to get all  tours.", error: err.message })
+    }
+}
+
+
 
 export const sendReq = async (req, res) => {
-    // taking the user's detail.
     const user = req.user;
-    try {
-        let tourId = req.params.tourId;  //Taking the tourId from the params;
+    const tourId = req.params.tourId;
 
-        let tourDetail = await Tour.findById(tourId);
+    try {
+        const tourDetail = await Tour.findById(tourId);
 
         // If the Id is not present in the tour collection.
-        if (tourDetail.length <= 0) {
+        if (!tourDetail) {
             return res.status(404).json({ message: "Tour not found." });
         }
 
@@ -94,29 +113,31 @@ export const sendReq = async (req, res) => {
             return res.status(400).json({ message: "You have already requested to join this tour." });
         }
 
-        // Check if the tour is already ended.
-        let currDate = new Date();
-        if (tourDetail.endDate < currDate) {
+        // Check if the tour is already ended
+        const currDate = new Date();
+        if (new Date(tourDetail.endDate) < currDate) {
             return res.status(400).json({ message: "This tour has already ended." });
         }
 
         // Check if tour is full
-        if (tourDetail.enrolled.length >= tour.totalCapacity) {
+        if (tourDetail.enrolled.length >= tourDetail.totalCapacity) {
             return res.status(400).json({ message: "This tour is already full." });
         }
 
         // Add user to requests
-        tourDetail.requests.push(user.Id);
+        tourDetail.requests.push(user.id);
         await tourDetail.save();
-
 
         return res.status(200).json({ message: "Request sent successfully." });
 
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ err: "server error in sending the Request.", error: err.message })
+        return res.status(500).json({
+            err: "Server error in sending the request.",
+            error: err.message
+        });
     }
-}
+};
 
 
 // A cronjob that remove all the request older than 7 days and
@@ -157,8 +178,16 @@ export const approveReq = async (req, res) => {
         let tourId = req.params.tourId;
         let reqId = req.body.reqId;
 
+        console.log({ tourId });
+        console.log({ reqId });
+        // console.log({ user });
+
         let tourDetail = await Tour.findById(tourId);
         let userDetail = await User.findById(reqId);
+
+        console.log({ tourDetail });
+        console.log({ tourDetail });
+
 
         // If user does not exist in the database now.
         if (!userDetail) {
@@ -176,10 +205,10 @@ export const approveReq = async (req, res) => {
         }
 
         // Remove user from requests
-        tourDetail.requests = tourDetail.requests.filter(id => id.toString() !== reqId);
+        tourDetail.requests = tourDetail.requests.filter(id => id && id.toString() !== reqId);
 
         // Add user to enrolled
-        tourDetail.enrolled.push(reqId);
+        tourDetail.enrolled.push(reqId.toString());
 
         await tourDetail.save();
 
@@ -188,5 +217,33 @@ export const approveReq = async (req, res) => {
     } catch (err) {
         console.log(err);
         return res.status(500).json({ err: "server error in tour Add", error: err.message })
+    }
+}
+
+
+
+// Get a pecific tour's details
+export const getTourDetail = async (req, res) => {
+
+    let user = req.user;
+    try {
+
+        let tourId = req.params.tourId;
+        let tours = await Tour.findById(tourId);
+        // console.log({ tours })
+
+        if (!tours) {
+            return res.status(404).json({ message: "Tour not found." });
+        }
+
+
+        return res.status(200).json({
+            message: "Here are the all details of the Tour.",
+            tourDetail: tours
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ err: "server error to get all  tours.", error: err.message })
     }
 }

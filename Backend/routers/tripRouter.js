@@ -3,22 +3,43 @@ const tripRouter = express.Router();
 import { checkForToken } from "../controllers/auth.controller.js";
 import { addFavorites, removeFavorite } from "../controllers/tripController.js";
 // import { AdminOnly } from "../middlewares/adminOnly";
-import { approveReq, sendReq, showTours, tourAdd } from "../controllers/tripMainController.js";
+import { approveReq, getTourDetail, sendReq, showAllTours, showTours, tourAdd } from "../controllers/tripMainController.js";
 import { multerPhotos } from "../middlewares/multer.js";
 
 //Adding tour
 tripRouter.post("/addTour", multerPhotos, checkForToken, tourAdd)
 tripRouter.get("/", (req, res) => {
-   return res.send("vijay nimar")
+    return res.send("vijay nimar")
 })
 
 
 
-// show tour : dummy route name for now.
+// <-------- As a Tour creator Logics ------->
+
+//For the user to see his own created tours
 tripRouter.get("/tourList", multerPhotos, checkForToken, showTours);
-// tripRouter.post("/tourList", multerPhotos, checkForToken, sendReq);
-// tripRouter.get("/tourList", multerPhotos, checkForToken, showRequests);
-// tripRouter.get("/tourList", multerPhotos, checkForToken, approveReq);
+
+// To get the detail of a own created Tour 
+tripRouter.get("/tourList/:tourId", multerPhotos, checkForToken, getTourDetail);
+
+// Approving the requests 
+tripRouter.post("/tourList/:tourId", multerPhotos, checkForToken, approveReq);
+
+
+
+
+
+// <-------- As a Tour joiner Logics ------->
+
+// For user to see all the tours that are going on
+tripRouter.get("/tours", multerPhotos, checkForToken, showAllTours);
+
+// To send the request to a particular tour.
+tripRouter.post("/tours/:tourId", multerPhotos, checkForToken, sendReq);
+
+// To get the details of anyone else's Tour
+tripRouter.get("/tours/:tourId", multerPhotos, checkForToken, getTourDetail);
+
 
 // send request
 // approve request
