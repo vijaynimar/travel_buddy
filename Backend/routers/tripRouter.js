@@ -17,13 +17,13 @@ tripRouter.get("/", (req, res) => {
 // <-------- As a Tour creator Logics ------->
 
 //For the user to see his own created tours
-tripRouter.get("/tourList", multerPhotos, checkForToken, showTours);
+tripRouter.get("/tourList", checkForToken, showTours);
 
 // To get the detail of a own created Tour 
-tripRouter.get("/tourList/:tourId", multerPhotos, checkForToken, getTourDetail);
+tripRouter.get("/tourList/:tourId", checkForToken, getTourDetail);
 
 // Approving the requests 
-tripRouter.post("/tourList/:tourId", multerPhotos, checkForToken, approveReq);
+tripRouter.post("/tourList/:tourId", checkForToken, approveReq);
 
 
 
@@ -32,13 +32,13 @@ tripRouter.post("/tourList/:tourId", multerPhotos, checkForToken, approveReq);
 // <-------- As a Tour joiner Logics ------->
 
 // For user to see all the tours that are going on
-tripRouter.get("/tours", multerPhotos, checkForToken, showAllTours);
+tripRouter.get("/tours", checkForToken, showAllTours);
 
 // To send the request to a particular tour.
-tripRouter.post("/tours/:tourId", multerPhotos, checkForToken, sendReq);
+tripRouter.post("/tours/:tourId", checkForToken, sendReq);
 
 // To get the details of anyone else's Tour
-tripRouter.get("/tours/:tourId", multerPhotos, checkForToken, getTourDetail);
+tripRouter.get("/tours/:tourId", checkForToken, getTourDetail);
 
 
 // send request
