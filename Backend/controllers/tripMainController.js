@@ -22,7 +22,7 @@ export const tourAdd = async (req, res) => {
                 fs.unlinkSync(filePath)
             }
         }
-       res.send(url)
+       
         const newTour = new Tour({
             admin: token.email,
             images: url,
