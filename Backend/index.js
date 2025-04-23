@@ -6,6 +6,7 @@ import "dotenv/config";
 import { dbConnection } from "./config/dbConnection.js";
 import { authRouter } from "./routers/router.js";
 import { tripRouter } from "./routers/tripRouter.js";
+import { ai } from "./routers/aiRoute.js";
 const app = express();
 const frontendUrl = ["", "http://localhost:5173"];
 const corsOptions = {
@@ -24,6 +25,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 // app.use(morgan("common"));
+app.use(ai)
 app.use(authRouter);
 app.use(tripRouter)
 

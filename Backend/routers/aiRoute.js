@@ -1,6 +1,6 @@
 import {Router} from "express"
 import { aiFetch } from "../controllers/aiIntegration.js"
 const ai=Router()
-ai.get("/aiIntergration",aiFetch)
+ai.post("/aiIntergration",aiFetch)
 
 export {ai}
