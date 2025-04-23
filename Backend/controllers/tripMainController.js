@@ -178,8 +178,8 @@ export const approveReq = async (req, res) => {
         let tourId = req.params.tourId;
         let reqId = req.body.reqId;
 
-        console.log({ tourId });
-        console.log({ reqId });
+        // console.log({ tourId });
+        // console.log({ reqId });
         // console.log({ user });
 
         let tourDetail = await Tour.findById(tourId);
