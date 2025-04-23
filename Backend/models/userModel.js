@@ -7,8 +7,8 @@ const userSchema = new Schema({
     password: { type: String, required: true, },
     phone: { type: Number, required: true, trim: true, minlength: 10, maxlength: 10 },
     resetToken: { type: String, default: null },
-    createdTours: [{ type: Schema.Types.ObjectId("tour"), }],
-    enrollerTours: [{ type: Schema.Types.ObjectId }],
+    createdTours: [{ type: Schema.Types.ObjectId, ref: "Tour" }],
+    enrollerTours: [{ type: Schema.Types.ObjectId, ref: "tour" }],
 });
 // Create the User model 
 export const User = new model("User", userSchema);
