@@ -2,6 +2,7 @@ import { User } from "../models/userModel.js";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import argon2 from "argon2";
+import { Tour } from "../models/tourModel.js";
 import "dotenv/config";
 
 
@@ -326,3 +327,32 @@ export const checkForToken = async (req, res, next) => {
 }
 
 
+export const showProfile=async(req,res)=>{
+    const userId = req.user._id
+    // console.log(userId);
+    try{
+        const userProfile=await User.findById(userId).select("-resetToken -password -__v")
+        let tourcreated=[]
+        if (Array.isArray(userProfile.createdTours) && userProfile.createdTours.length > 0) {
+            for(let i=0;i<userProfile.createdTours.length;i++){
+                let tour=await Tour.findById(userProfile.createdTours[i])
+                tourcreated.push(tour)
+            }
+        }
+       
+        let enrlore=[]
+        if (Array.isArray(userProfile.enrollerTours) && userProfile.enrollerTours.length > 0) {
+            for (const tourId of userProfile.enrollerTours) {
+                const tour = await Tour.findById(tourId);
+                if (tour) enrlore.push(tour);
+            }
+        }
+      
+        userProfile.createdTours=tourcreated
+        userProfile.enrolled=enrlore
+        res.status(200).json({data:userProfile})
+    }catch(err){
+        console.log(err);
+        res.status(500).json({messge:"Internal server error in show Profile"})
+    }
+}
