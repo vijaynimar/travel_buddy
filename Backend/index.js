@@ -6,8 +6,14 @@ import "dotenv/config";
 import { dbConnection } from "./config/dbConnection.js";
 import { authRouter } from "./routers/router.js";
 import { tripRouter } from "./routers/tripRouter.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+
+
 const app = express();
-const frontendUrl = ["", "http://localhost:5173"];
+app.use(cookieParser());
+const frontendUrl = ["", "http://localhost:3000"];
 const corsOptions = {
     origin: frontendUrl,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -15,10 +21,18 @@ const corsOptions = {
     credentials: true,
 };
 app.use(cors(corsOptions));
-app.get("/",(req,res)=>{
-    res.send("vijay nimar line12")
-})
-app.use(cookieParser());
+
+// Get __dirname equivalent in ES6
+export const __filename = fileURLToPath(import.meta.url);
+export const __dirname = path.dirname(__filename);
+
+
+export let homePage = path.join(__dirname, "../Frontend/homePage.html")
+export let tourDetailPage = path.join(__dirname, "../Frontend/tourDetail.html")
+export let FavoritePage = path.join(__dirname, "../Frontend/Favorite.html")
+
+app.use(express.static(path.join(__dirname, "../Frontend")));
+app.use(morgan("dev"));
 
 
 

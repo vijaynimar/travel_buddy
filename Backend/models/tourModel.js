@@ -1,6 +1,7 @@
 import { Schema, Types, model } from "mongoose";
 
 const tourSchema = new Schema({
+    title: { type: String, required: true },
     admin: { type: String, required: true },
     startLocation: { type: String, required: true },
     endLocation: { type: String, required: true },
