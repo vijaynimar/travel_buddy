@@ -115,8 +115,8 @@ export const sendReq = async (req, res) => {
 
         // Check if the tour is already ended
         const currDate = new Date();
-        if (new Date(tourDetail.endDate) < currDate) {
-            return res.status(400).json({ message: "This tour has already ended." });
+        if (new Date(tourDetail.startDate) < currDate) {
+            return res.status(400).json({ message: "This tour has already started you can't join this tour." });
         }
 
         // Check if tour is full
