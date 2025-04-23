@@ -28,14 +28,14 @@ export const signUpUser = async (req, res) => {
 
 
         // Get data from the user
-        const { email, name, password, phone,role } = req.body;
-        console.log(email, name, password, phone,role)
+        const { email, name, password, phone, } = req.body;
+        console.log(email, name, password, phone,)
         // Verify if user enter the fields or not
-        if (!email || !name || !password || !phone || role) {
+        if (!email || !name || !password || !phone) {
             return res.status(400).json({ msg: "email , name, password and phone are required." })
         }
 
-        console.log(email, name, password, phone,role);
+        console.log(email, name, password, phone);
 
         // Check is the user is already in the system
         const checkUser = await User.findOne({ email });
@@ -54,7 +54,6 @@ export const signUpUser = async (req, res) => {
             email,
             password: hashPassword,
             phone,
-            role
         });
 
         // Save the record
@@ -69,7 +68,7 @@ export const signUpUser = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
-       return res.status(401).json({ message: "Invalid credentials", error: error.message });
+        return res.status(401).json({ message: "Invalid credentials", error: error.message });
     }
 }
 
@@ -102,14 +101,14 @@ export const loginUser = async (req, res) => {
 
         // Creating accessToken Token
         const accessToken = jwt.sign(
-            { id: user._id, email:user.email},
+            { id: user._id, email: user.email },
             process.env.JWT_ACCESS_PASS,
             { expiresIn: "1h" }
         );
 
         // Creating refreshToken
         const refreshToken = jwt.sign(
-            { id: user._id, email:user.email},
+            { id: user._id, email: user.email },
             process.env.JWT_ACCESS_PASS,
             { expiresIn: "7d" }
         );
@@ -132,7 +131,7 @@ export const loginUser = async (req, res) => {
 
         console.log(req.cookies);
         console.log(user);
-        
+
         // Send role of the user with success message. 
         res.status(200).json({ message: "login successful", user });
     } catch (error) {
@@ -223,7 +222,7 @@ export const resetPassword = async (req, res) => {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
 
-        
+
         // decode the resetToken  
         const decode = jwt.verify(token, process.env.JWT_RESET_PASS);
         console.log(decode)
@@ -249,7 +248,7 @@ export const resetPassword = async (req, res) => {
 
 // MiddleWare to check for the token.
 export const checkForToken = async (req, res, next) => {
-  
+
     // console.log("Entered in token Verification.");
 
     // Get the accessToken from the cookies

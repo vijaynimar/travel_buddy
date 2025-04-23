@@ -9,7 +9,7 @@ import { multerPhotos } from "../middlewares/multer.js";
 //Adding tour
 tripRouter.post("/addTour", multerPhotos, checkForToken, tourAdd)
 tripRouter.get("/", (req, res) => {
-    res.send("vijay nimar")
+   return res.send("vijay nimar")
 })
 
 

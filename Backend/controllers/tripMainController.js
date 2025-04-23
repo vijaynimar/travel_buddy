@@ -1,4 +1,4 @@
-import { tour } from "../models/tourModel.js";
+import { Tour } from "../models/tourModel.js";
 import { v2 } from "cloudinary"
 import fs from "fs"
 import { User } from "../models/userModel.js";
@@ -22,14 +22,14 @@ export const tourAdd = async (req, res) => {
                 fs.unlinkSync(filePath)
             }
         }
-        res.send(url)
-        const newTour = new tour({
+       res.send(url)
+        const newTour = new Tour({
             admin: token.email,
             images: url,
             startLocation, endLocation, destinations, description, totalCapacity, startDate, endDate, price
         })
         await newTour.save()
-        res.status(201).json({ message: "Tour uploaded sucessfully" })
+       return res.status(201).json({ message: "Tour uploaded sucessfully" })
 
     } catch (err) {
         console.log(err);
@@ -43,37 +43,19 @@ export const showTours = async (req, res) => {
     let id = req.user.id;
     try {
 
-        let tours = tour.aggregate([{
-            $match: { _id: userObjectId }
-        },
-        {
-            $lookup: {
-                from: "tours",               // the name of the Tour collection
-                localField: "createdTours",
-                foreignField: "_id",
-                as: "createdToursDetails"
-            }
-        },
-        {
-            projection: {
-                _id: 0,
-                createdTours: "$createdToursDetails",
-                "createdTours._id": 1,
-                "createdTours.startLocation": 1,
-                "createdTours.endLocation": 1,
-                "createdTours.startDate": 1,
-                "createdTours.endDate": 1,
-                "createdTours.price": 1,
-                "createdTours.totalCapacity": 1,
-                "createdTours.destinations": 1,
-                "createdTours.description": 1,
-                "createdTours.images": 1
-            }
-        }])
+        console.log({ id });
+        console.log({ user: req.user })
+        const tours = await User.findById(id)
+            .populate({
+                path: "createdTours",
+                select: "_id startLocation endLocation startDate endDate price totalCapacity destinations description images"
+            });
 
-        if (tours.length === 0) {
-            return res.status(404).json({ message: "User not found or no created tours" });
+        if (!tours || tours.createdTours.length === 0) {
+            return res.status(404).json({ message: "User not found or no created any tours yet." });
         }
+
+        console.log({ tours })
 
         return res.status(200).json({
             message: "Your all created tours",
@@ -94,32 +76,32 @@ export const sendReq = async (req, res) => {
     try {
         let tourId = req.params.tourId;  //Taking the tourId from the params;
 
-        let Tour = await tour.findById(tourId);
+        let tourDetail = await Tour.findById(tourId);
 
         // If the Id is not present in the tour collection.
-        if (Tour.length <= 0) {
+        if (tourDetail.length <= 0) {
             return res.status(404).json({ message: "Tour not found." });
         }
 
         // Check if user already requested
-        if (Tour.requests.includes(user.id)) {
+        if (tourDetail.requests.includes(user.id)) {
             return res.status(400).json({ message: "You have already requested to join this tour." });
         }
 
         // Check if the tour is already ended.
         let currDate = new Date();
-        if (Tour.endDate < currDate) {
+        if (tourDetail.endDate < currDate) {
             return res.status(400).json({ message: "This tour has already ended." });
         }
 
         // Check if tour is full
-        if (Tour.enrolled.length >= tour.totalCapacity) {
+        if (tourDetail.enrolled.length >= tour.totalCapacity) {
             return res.status(400).json({ message: "This tour is already full." });
         }
 
         // Add user to requests
-        Tour.requests.push(user.Id);
-        await Tour.save();
+        tourDetail.requests.push(user.Id);
+        await tourDetail.save();
 
 
         return res.status(200).json({ message: "Request sent successfully." });
@@ -140,15 +122,15 @@ export const showRequests = async (req, res) => {
     const user = req.user;
     try {
         let tourId = req.params.tourId;
-        let Tour = await tour.findById(tourId);
+        let tourDetail = await Tour.findById(tourId);
 
         // If the Id is not present in the tour collection.
-        if (Tour.length <= 0) {
+        if (tourDetail.length <= 0) {
             return res.status(404).json({ message: "Tour not found." });
         }
 
         // If there is not request
-        if (Tour.requests.length < 1) {
+        if (tourDetail.requests.length < 1) {
             return res.status(404).json({ message: "No request is present for Now." });
         }
 
@@ -169,7 +151,7 @@ export const approveReq = async (req, res) => {
         let tourId = req.params.tourId;
         let reqId = req.body.reqId;
 
-        let Tour = await tour.findById(tourId);
+        let tourDetail = await Tour.findById(tourId);
         let userDetail = await User.findById(reqId);
 
         // If user does not exist in the database now.
@@ -178,22 +160,22 @@ export const approveReq = async (req, res) => {
         }
 
         // Checking if tour exists
-        if (!Tour) {
+        if (!tourDetail) {
             return res.status(404).json({ message: "Tour not found." });
         }
 
         // Check if tour is already full
-        if (Tour.enrolled.length >= Tour.totalCapacity) {
+        if (tourDetail.enrolled.length >= tourDetail.totalCapacity) {
             return res.status(400).json({ message: "Cannot approve. Tour is already full." });
         }
 
         // Remove user from requests
-        Tour.requests = Tour.requests.filter(id => id.toString() !== reqId);
+        tourDetail.requests = tourDetail.requests.filter(id => id.toString() !== reqId);
 
         // Add user to enrolled
-        Tour.enrolled.push(reqId);
+        tourDetail.enrolled.push(reqId);
 
-        await Tour.save();
+        await tourDetail.save();
 
         return res.status(200).json({ message: "User request approved and enrolled in the tour." });
 

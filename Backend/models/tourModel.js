@@ -1,27 +1,27 @@
-import { Schema ,Types,model} from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const tourSchema=new Schema({
-    admin:{type:String,required:true},
-    startLocation:{type:String,required:true},
-    endLocation:{type:String,required:true},
-    destinations:[String],
-    description:{type:String},
-    images:[String],
-    totalCapacity:{type:Number,required:true},
-    enrolled:[{
-         type:Schema.Types.ObjectId,
-         ref:"User"
+const tourSchema = new Schema({
+    admin: { type: String, required: true },
+    startLocation: { type: String, required: true },
+    endLocation: { type: String, required: true },
+    destinations: [String],
+    description: { type: String },
+    images: [String],
+    totalCapacity: { type: Number, required: true },
+    enrolled: [{
+        type: Schema.Types.ObjectId,
+        ref: "User"
     }],
-    startDate:{type:Date},
-    endDate:{type:Date},
-    price:{type:Number},
-    requests:[
+    startDate: { type: Date },
+    endDate: { type: Date },
+    price: { type: Number },
+    requests: [
         {
-            type:Schema.Types.ObjectId,
-            ref:"User"
+            type: Schema.Types.ObjectId,
+            ref: "User"
         }
     ]
 })
 
-const tour=model("tour",tourSchema)
-export {tour}
+const Tour = model("Tour", tourSchema)
+export { Tour }
