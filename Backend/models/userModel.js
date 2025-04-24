@@ -9,6 +9,7 @@ const userSchema = new Schema({
     resetToken: { type: String, default: null },
     createdTours: [{ type: Schema.Types.ObjectId, ref: "Tour" }],
     enrollerTours: [{ type: Schema.Types.ObjectId, ref: "Tour" }],
+    favorite: [{ type: Schema.Types.ObjectId, ref: "Tour" }],
 });
 // Create the User model 
 export const User = new model("User", userSchema);

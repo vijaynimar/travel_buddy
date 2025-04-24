@@ -24,13 +24,10 @@ v2.config({
 // );
 
 export const tourAdd = async (req, res) => {
-<<<<<<< HEAD
+
     const user = req.user;
     console.log({ user });
     console.log("line12");
-=======
-    const user = req.user
->>>>>>> ba0db2a27b28c73533ed0792ff8dab3b4950ea8c
     const { startLocation, endLocation, destinations, description, totalCapacity, startDate, endDate, price } = req.body
     try {
         let url = [];
@@ -70,7 +67,7 @@ export const showTours = async (req, res) => {
         const tours = await User.findById(id)
             .populate({
                 path: "createdTours",
-                select: "_id startLocation endLocation startDate endDate price totalCapacity destinations description images"
+                select: "_id startLocation endLocation startDate endDate price totalCapacity destinations description images title"
             });
 
         console.log({ tours });
@@ -81,6 +78,35 @@ export const showTours = async (req, res) => {
         return res.status(200).json({
             message: "Your all created tours",
             createdTours: tours.createdTours
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ err: "server error to get all  tours.", error: err.message })
+    }
+}
+
+// Show the user's created tours
+export const showFavorite = async (req, res) => {
+    let id = req.user.id;
+    try {
+
+        console.log({ id });
+        console.log({ user: req.user })
+        const tours = await User.findById(id)
+            .populate({
+                path: "favorite",
+                select: "_id startLocation endLocation startDate endDate price totalCapacity destinations description images title"
+            });
+
+        console.log({ tours });
+        if (!tours || tours.favorite.length === 0) {
+            return res.status(404).json({ message: "User not found or no created any tours yet." });
+        }
+
+        return res.status(200).json({
+            message: "Your all created tours",
+            favorites: tours.favorite
         });
 
     } catch (err) {
@@ -116,7 +142,7 @@ export const enrolledTours = async (req, res) => {
 
         let tours = await user.populate({
             path: "enrollerTours",
-            select: "_id startLocation endLocation startDate endDate price totalCapacity destinations description images"
+            select: "_id startLocation endLocation startDate endDate price totalCapacity destinations description images title"
         })
 
         console.log({ tours })
@@ -140,17 +166,20 @@ export const sendReq = async (req, res) => {
     const tourId = req.params.tourId;
 
     try {
+        console.log({ user, tourId })
         const tourDetail = await Tour.findById(tourId);
-
+        console.log({ tourDetail });
         // If the Id is not present in the tour collection.
         if (!tourDetail) {
             return res.status(404).json({ message: "Tour not found." });
         }
-
+        console.log("tour is present")
         // Check if user already requested
         if (tourDetail.requests.includes(user.id)) {
             return res.status(400).json({ message: "You have already requested to join this tour." });
         }
+
+        console.log("No previous request exist.")
         // Check if the tour is already ended
         const currDate = new Date();
         if (new Date(tourDetail.startDate) < currDate) {
@@ -166,16 +195,51 @@ export const sendReq = async (req, res) => {
         tourDetail.requests.push(user.id);
         await tourDetail.save();
 
+        console.log("");
+
         return res.status(200).json({ message: "Request sent successfully." });
 
     } catch (err) {
         console.log(err);
         return res.status(500).json({
             err: "Server error in sending the request.",
-            error: err.message
+            message: err.message
         });
     }
 };
+
+export const unsendReq = async (req, res) => {
+    const user = req.user;
+    const tourId = req.params.tourId;
+
+    try {
+        const tourDetail = await Tour.findById(tourId);
+
+        if (!tourDetail) {
+            return res.status(404).json({ message: "Tour not found." });
+        }
+
+        // Check if user has actually requested to join
+        const index = tourDetail.requests.indexOf(user.id);
+        if (index === -1) {
+            return res.status(400).json({ message: "You haven't requested to join this tour." });
+        }
+
+        // Remove the user from requests
+        tourDetail.requests.splice(index, 1);
+        await tourDetail.save();
+
+        return res.status(200).json({ message: "Request removed successfully." });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            err: "Server error in unsending the request.",
+            message: err.message
+        });
+    }
+};
+
 
 
 // A cronjob that remove all the request older than 7 days and
@@ -335,19 +399,19 @@ export const addFavorites = async (req, res) => {
         // Step 5: If not present, add it to favorites
         // Step 6: Save the updated user record
 
-        const { propertyId } = req.body;
-        console.log("Property ID:", propertyId);
+        const { tourId } = req.params;
+        console.log("TourId: ", tourId);
 
         const user = req.user;
 
-        const alreadyInFavorites = user.favorite.includes(propertyId);
+        const alreadyInFavorites = user.favorite.includes(tourId);
 
         if (alreadyInFavorites) {
-            await user.updateOne({ $pull: { favorite: propertyId } });
+            await user.updateOne({ $pull: { favorite: tourId } });
             return res.status(200).json({ message: "Tour removed from favorites." });
         }
 
-        user.favorite.push(propertyId);
+        user.favorite.push(tourId);
 
         await user.save();
 
@@ -359,31 +423,31 @@ export const addFavorites = async (req, res) => {
 }
 
 
-export const removeFavorite = async (req, res) => {
-    const { id } = req.params;
-    const userId = req.user.id;
+// export const removeFavorite = async (req, res) => {
+//     const { tourId } = req.params;
+//     const userId = req.user.id;
 
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "Tour not found" });
-        }
+//     try {
+//         const user = await User.findById(userId);
+//         if (!user) {
+//             return res.status(404).json({ message: "Tour not found" });
+//         }
 
-        // Check if the property is in the user's favorites
-        if (!user.favorite.includes(id)) {
-            return res.status(400).json({ message: "Tour not in favorites" });
-        }
+//         // Check if the property is in the user's favorites
+//         if (!user.favorite.includes(tourId)) {
+//             return res.status(400).json({ message: "Tour not in favorites" });
+//         }
 
-        // Remove property from favorites
-        user.favorite = user.favorite.filter(fav => fav.toString() !== id);
-        await user.save();
+//         // Remove property from favorites
+//         user.favorite = user.favorite.filter(fav => fav.toString() !== tourId);
+//         await user.save();
 
-        res.status(200).json({ message: "Tour removed from favorites", user });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Internal Server Error.", error: error.message });
-    }
-}
+//         res.status(200).json({ message: "Tour removed from favorites", user });
+//     } catch (err) {
+//         console.error(err);
+//         return res.status(500).json({ message: "Internal Server Error.", error: error.message });
+//     }
+// }
 
 
 
