@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Favorite Tours</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f5f7fa;
+        padding: 2rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      .loading {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #7f8c8d;
+        margin: 2rem 0;
+      }
+
+      .error {
+        background-color: #ffecec;
+        color: #e74c3c;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 2rem auto;
+        max-width: 800px;
+        text-align: center;
+      }
+
+      .tours-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .tour-card {
+        background-color: white;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .tour-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-image {
+        height: 200px;
+        background-color: #3498db;
+        background-image: linear-gradient(135deg, #3498db, #8e44ad);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .card-content {
+        padding: 1.5rem;
+      }
+
+      .card-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .card-title h2 {
+        color: #2c3e50;
+        font-size: 1.5rem;
+      }
+
+      .price {
+        color: #27ae60;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .tour-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .detail-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-bottom: 0.25rem;
+      }
+
+      .detail-value {
+        font-weight: 500;
+        color: #34495e;
+      }
+
+      .tour-description {
+        margin-bottom: 1.5rem;
+        color: #34495e;
+        line-height: 1.6;
+      }
+
+      .destinations {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .destinations-title {
+        font-size: 1rem;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+      }
+
+      .destinations-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .destination-tag {
+        background-color: #e0f7fa;
+        color: #0097a7;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .card-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .view-details-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+      }
+
+      .view-details-btn:hover {
+        background-color: #2980b9;
+      }
+
+      .capacity-bar {
+        background-color: #ecf0f1;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+      }
+
+      .capacity-progress {
+        height: 100%;
+        background-color: #3498db;
+        width: 70%; /* Will be set dynamically by JS */
+      }
+
+      .capacity-text {
+        text-align: right;
+        font-size: 0.85rem;
+        color: #7f8c8d;
+      }
+
+      @media (max-width: 768px) {
+        .tour-details {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>My Favorite Tours</h1>
+      <p>Discover and plan your next adventure</p>
+    </header>
+
+    <div id="tours-container" class="tours-container">
+      <div class="loading">Loading your favorite tours...</div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchFavoriteTours();
+      });
+
+      async function fetchFavoriteTours() {
+        const toursContainer = document.getElementById("tours-container");
+
+        try {
+          const response = await fetch("http://localhost:3000/user/favorites");
+          const data = await response.json();
+          const tours = data.favorites;
+          console.log({ tours });
+          if (!response.ok) {
+            throw new Error("Failed to fetch tours data");
+          }
+
+          // Clear loading message
+          toursContainer.innerHTML = "";
+          if (tours && tours.length > 0) {
+            tours.forEach((tour) => {
+              const tourCard = createTourCard(tour);
+              toursContainer.appendChild(tourCard);
+            });
+          } else {
+            toursContainer.innerHTML =
+              '<div class="error">No favorite tours found. Add some tours to your favorites!</div>';
+          }
+        } catch (error) {
+          console.error("Error fetching tours:", error);
+          toursContainer.innerHTML = `
+                    <div class="error">
+                        <p>Something went wrong while fetching your favorite tours.</p>
+                        <p>Please try again later or check if the API server is running.</p>
+                    </div>
+                `;
+        }
+      }
+
+      function createTourCard(tour) {
+        // Format dates nicely
+        const startDate = new Date(tour.startDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        const endDate = new Date(tour.endDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        // Calculate duration in days
+        const start = new Date(tour.startDate);
+        const end = new Date(tour.endDate);
+        const durationDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+
+        // Format price
+        const formattedPrice = tour.price.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+
+        // Create card element
+        const tourCard = document.createElement("div");
+        tourCard.className = "tour-card";
+        tourCard.id = tour._id;
+
+        // Generate random capacity for demo purposes (between 30-90% of total)
+        const currentCapacity = Math.floor(
+          tour.totalCapacity * (Math.random() * 0.6 + 0.3)
+        );
+        const capacityPercentage = (currentCapacity / tour.totalCapacity) * 100;
+
+        tourCard.innerHTML = `
+                <div class="card-image">
+                    ${tour.title}
+                </div>
+                <div class="card-content">
+                    <div class="card-title" >
+                        <h2>${tour.title}</h2>
+                        <span class="price">${formattedPrice}</span>
+                    </div>
+                    
+                    <div class="tour-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Start Location</span>
+                            <span class="detail-value">${
+                              tour.startLocation
+                            }</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">End Location</span>
+                            <span class="detail-value">${
+                              tour.endLocation
+                            }</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Start Date</span>
+                            <span class="detail-value">${startDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">End Date</span>
+                            <span class="detail-value">${endDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Duration</span>
+                            <span class="detail-value">${durationDays} days</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Capacity</span>
+                            <div class="capacity-bar">
+                                <div class="capacity-progress" style="width: ${capacityPercentage}%"></div>
+                            </div>
+                            <span class="capacity-text">${currentCapacity}/${
+          tour.totalCapacity
+        } spots filled</span>
+                        </div>
+                    </div>
+                    
+                    <p class="tour-description">${tour.description}</p>
+                    
+                    <div class="destinations">
+                        <h3 class="destinations-title">Tour Destinations</h3>
+                        <div class="destinations-list">
+                            ${tour.destinations
+                              .map(
+                                (destination) =>
+                                  `<span class="destination-tag">${destination}</span>`
+                              )
+                              .join("")}
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button class="view-details-btn" onclick="getTourDetail('${
+                          tour._id
+                        }')">View Details</button>
+                    </div>
+                </div>
+            `;
+
+        return tourCard;
+      }
+
+      function viewTourDetails(tourId) {
+        // This function would typically navigate to a detail page
+        // For now, we'll just log the ID and show an alert
+        console.log("Viewing tour details for:", tourId);
+        alert(`Viewing details for tour: ${tourId}`);
+        // In a real application, you might do:
+        // window.location.href = `/tour-details.html?id=${tourId}`;
+      }
+
+      async function getTourDetail(newRoute) {
+        console.log(newRoute);
+        window.location.href = `http://localhost:3000/tourDetail/${newRoute}`;
+      }
+    </script>
+  </body>
+</html>

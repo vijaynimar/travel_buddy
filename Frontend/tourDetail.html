@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tour Details</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      header {
+        background-color: #1a3e5f;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .tour-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+      .tour-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .tour-price {
+        font-size: 2rem;
+        color: #1a3e5f;
+        font-weight: bold;
+      }
+      .tour-image-container {
+        width: 100%;
+        height: 400px;
+        background-color: #ddd;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+      .tour-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+      .detail-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .detail-card h3 {
+        color: #1a3e5f;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+      }
+      .detail-list {
+        list-style-type: none;
+      }
+      .detail-list li {
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: center;
+      }
+      .detail-list li i {
+        margin-right: 0.5rem;
+        color: #1a3e5f;
+      }
+      .description-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+      .description-card h3 {
+        color: #1a3e5f;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+      }
+      .description-card p {
+        line-height: 1.6;
+      }
+      .booking-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .availability {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+      .seats-left {
+        color: green;
+        font-weight: bold;
+      }
+      .book-now-btn {
+        background-color: #1a3e5f;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-bottom: 1rem;
+      }
+      .book-now-btn:hover {
+        background-color: #0f2942;
+      }
+      .view-requests-btn {
+        background-color: #43678a;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 1rem;
+      }
+      .view-requests-btn:hover {
+        background-color: #2d4b6b;
+      }
+      .destinations-map {
+        width: 100%;
+        height: 300px;
+        background-color: #ddd;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      footer {
+        background-color: #1a3e5f;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        margin-top: 3rem;
+      }
+      .icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        fill: #1a3e5f;
+      }
+      .loading {
+        text-align: center;
+        padding: 50px;
+        font-size: 24px;
+      }
+      #tourDetailContainer {
+        display: none;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 2rem;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+      .close-modal {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close-modal:hover {
+        color: #000;
+      }
+      .modal-title {
+        color: #1a3e5f;
+        margin-bottom: 1.5rem;
+      }
+      .request-list {
+        list-style-type: none;
+      }
+      .request-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+      .request-item:last-child {
+        border-bottom: none;
+      }
+      .request-email {
+        font-weight: bold;
+      }
+      .request-status {
+        display: inline-block;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+      }
+      .status-pending {
+        background-color: #fff8e1;
+        color: #f57f17;
+      }
+      .status-approved {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+      }
+      .status-rejected {
+        background-color: #ffebee;
+        color: #c62828;
+      }
+      .request-date {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+      }
+      .no-requests {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-style: italic;
+      }
+      .loading-requests {
+        text-align: center;
+        padding: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Experience the Journey of a Lifetime</h1>
+    </header>
+
+    <div id="loadingMessage" class="loading">Loading tour details...</div>
+
+    <div id="tourDetailContainer" class="container">
+      <!-- Tour content will be generated here by JavaScript -->
+    </div>
+
+    <!-- Modal for requests -->
+    <div id="requestsModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeRequestsModal()">&times;</span>
+        <h2 class="modal-title">Tour Join Requests</h2>
+        <div id="requestsContainer">
+          <div class="loading-requests">Loading requests...</div>
+        </div>
+      </div>
+    </div>
+
+    <footer id="pageFooter">
+      <!-- Footer content will be generated here by JavaScript -->
+    </footer>
+
+    <script>
+      // Get the tour ID from URL
+      const urlParams = window.location.pathname;
+      const array = urlParams.split("/");
+      const id = array[array.length - 1];
+      console.log({ array });
+      console.log({ id });
+
+      // Store the tour details globally
+      let currentTourDetail = null;
+
+      // Function to format date
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+
+      // Create SVG icon
+      function createSvgIcon(path) {
+        return `<svg class="icon" viewBox="0 0 24 24">
+                  <path d="${path}"/>
+                </svg>`;
+      }
+
+      // Icons paths
+      const iconPaths = {
+        location:
+          "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+        calendar:
+          "M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z",
+        people:
+          "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z",
+        money:
+          "M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z",
+        requests:
+          "M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z",
+      };
+
+      // Calculate duration in days between two dates
+      function calculateDuration(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+      }
+
+      // Display tour details
+      function displayTourDetails(tourDetail) {
+        // Store tour details in global variable
+        currentTourDetail = tourDetail;
+
+        // Hide loading message and show content container
+        document.getElementById("loadingMessage").style.display = "none";
+        document.getElementById("tourDetailContainer").style.display = "block";
+
+        const container = document.getElementById("tourDetailContainer");
+        const duration = calculateDuration(
+          tourDetail.startDate,
+          tourDetail.endDate
+        );
+        const seatsAvailable =
+          tourDetail.totalCapacity -
+          (tourDetail.enrolled ? tourDetail.enrolled.length : 0);
+
+        // Create tour header
+        const tourHeaderHTML = `
+          <div class="tour-header">
+            <div>
+              <h1 class="tour-title">${tourDetail.title}</h1>
+              <p>Cross-country adventure from ${tourDetail.startLocation} to ${
+          tourDetail.endLocation
+        }</p>
+            </div>
+            <div class="tour-price">$${tourDetail.price.toFixed(2)}</div>
+          </div>
+        `;
+
+        // Tour image container
+        const tourImageHTML = `
+          <div class="tour-image-container">
+            <img src="/api/placeholder/1200/400" alt="${tourDetail.title}" />
+          </div>
+        `;
+
+        // Description card
+        const descriptionHTML = `
+          <div class="description-card">
+            <h3>Tour Overview</h3>
+            <p>${tourDetail.description}</p>
+          </div>
+        `;
+
+        // Tour details - left card
+        const tourInfoHTML = `
+          <div class="detail-card">
+            <h3>Tour Information</h3>
+            <ul class="detail-list">
+              <li>
+                ${createSvgIcon(iconPaths.location)}
+                Start Location: ${tourDetail.startLocation}
+              </li>
+              <li>
+                ${createSvgIcon(iconPaths.location)}
+                End Location: ${tourDetail.endLocation}
+              </li>
+              <li>
+                ${createSvgIcon(iconPaths.calendar)}
+                Start Date: ${formatDate(tourDetail.startDate)}
+              </li>
+              <li>
+                ${createSvgIcon(iconPaths.calendar)}
+                End Date: ${formatDate(tourDetail.endDate)}
+              </li>
+              <li>
+                ${createSvgIcon(iconPaths.people)}
+                Capacity: ${tourDetail.totalCapacity} travelers
+              </li>
+              <li>
+                ${createSvgIcon(iconPaths.money)}
+                Price: $${tourDetail.price.toFixed(2)} per person
+              </li>
+            </ul>
+          </div>
+        `;
+
+        // Destinations card
+        let destinationsHTML = `
+          <div class="detail-card">
+            <h3>Destinations</h3>
+            <ul class="detail-list">
+              <li>
+                ${createSvgIcon(iconPaths.location)}
+                ${tourDetail.startLocation} (Starting Point)
+              </li>
+        `;
+
+        // Add all destinations
+        tourDetail.destinations.forEach((destination) => {
+          destinationsHTML += `
+            <li>
+              ${createSvgIcon(iconPaths.location)}
+              ${destination}
+            </li>
+          `;
+        });
+
+        // Add end location
+        destinationsHTML += `
+              <li>
+                ${createSvgIcon(iconPaths.location)}
+                ${tourDetail.endLocation} (End Point)
+              </li>
+            </ul>
+          </div>
+        `;
+
+        // Map container
+        const mapHTML = `
+          <div class="destinations-map">
+            <img src="/api/placeholder/1100/300" alt="Tour Route Map" />
+          </div>
+        `;
+
+        // Booking card with additional view requests button
+        const bookingHTML = `
+          <div class="booking-card">
+            <p class="availability">Available Seats: <span class="seats-left">${seatsAvailable}</span> remaining</p>
+            <p>Tour Duration: ${duration} days</p>
+            <p>${formatDate(tourDetail.startDate)} - ${formatDate(
+          tourDetail.endDate
+        )}</p>
+            <button class="book-now-btn" onclick="bookTour('${
+              tourDetail._id
+            }')">Book Now - $${tourDetail.price.toFixed(2)}</button>
+            <div>
+              <button class="view-requests-btn" onclick="viewTourRequests('${
+                tourDetail._id
+              }')">
+                ${createSvgIcon(iconPaths.requests)}
+                View Join Requests
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Assemble the page
+        container.innerHTML =
+          tourHeaderHTML +
+          tourImageHTML +
+          descriptionHTML +
+          `<div class="tour-details">${tourInfoHTML}${destinationsHTML}</div>` +
+          mapHTML +
+          bookingHTML;
+
+        // Set footer
+        document.getElementById("pageFooter").innerHTML = `
+          <p>© ${new Date().getFullYear()} Travel Adventures | Contact: ${
+          tourDetail.admin
+        }</p>
+        `;
+      }
+
+      // Book tour function
+      function bookTour(tourId) {
+        alert(
+          `Booking for tour ID: ${tourId} - This would open a booking form in a real application`
+        );
+        // Here you would typically open a booking form or redirect to a booking page
+      }
+
+      // View tour requests function
+      function viewTourRequests(tourId) {
+        // Show the modal
+        document.getElementById("requestsModal").style.display = "block";
+
+        // Reset the container
+        document.getElementById("requestsContainer").innerHTML = `
+          <div class="loading-requests">Loading requests...</div>
+        `;
+
+        // Make POST request to get requests
+        fetch(`http://localhost:3000/tourList/${tourId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // You can add body parameters if needed
+          // body: JSON.stringify({ param1: 'value1' })
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch requests");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log({ data });
+            displayRequests(data, tourId);
+          })
+          .catch((error) => {
+            console.log({ error });
+            document.getElementById("requestsContainer").innerHTML = `
+            <div class="no-requests">
+              <p>Error loading requests: ${error.message}</p>
+              <p>Please try again later.</p>
+            </div>
+          `;
+            console.error("Error fetching tour requests:", error);
+          });
+      }
+
+      // Close the requests modal
+      function closeRequestsModal() {
+        document.getElementById("requestsModal").style.display = "none";
+      }
+
+      // Display requests in the modal
+      function displayRequests(data, tourId) {
+        console.log({ data });
+        console.log({ tourId });
+        const container = document.getElementById("requestsContainer");
+
+        // Check if there are requests
+        if (!data.requests || data.requests.length === 0) {
+          container.innerHTML = `
+            <div class="no-requests">
+              <p>No requests found for this tour.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Generate HTML for requests
+        let requestsHTML = `<ul class="request-list">`;
+
+        data.requests.forEach((request) => {
+          const requestDate = new Date(request.requestDate);
+          const formattedDate = requestDate.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          const statusClass =
+            request.status === "pending"
+              ? "status-pending"
+              : request.status === "approved"
+              ? "status-approved"
+              : "status-rejected";
+
+          requestsHTML += `
+            <li class="request-item">
+              <div>
+                <span class="request-email">${
+                  request.email || request.userId
+                }</span>
+                <span class="request-status ${statusClass}">${
+            request.status || "pending"
+          }</span>
+              </div>
+              <div class="request-date">Requested: ${formattedDate}</div>
+              ${
+                request.message
+                  ? `<div class="request-message">"${request.message}"</div>`
+                  : ""
+              }
+            </li>
+          `;
+        });
+
+        requestsHTML += `</ul>`;
+        container.innerHTML = requestsHTML;
+      }
+
+      // Fetch tour data
+      function fetchingApi() {
+        const url = `http://localhost:3000/tours/${id}`;
+        console.log(url);
+
+        fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            let { tourDetail } = data;
+            console.log({ tourDetail });
+            displayTourDetails(tourDetail);
+          })
+          .catch((error) => {
+            document.getElementById("loadingMessage").innerHTML = `
+              <p>Error loading tour details. Please try again later.</p>
+              <p>${error.message}</p>
+            `;
+            console.error("Error fetching tour details:", error);
+          });
+      }
+
+      // Close modal when clicking outside of it
+      window.onclick = function (event) {
+        const modal = document.getElementById("requestsModal");
+        if (event.target === modal) {
+          closeRequestsModal();
+        }
+      };
+
+      // Call the function to fetch data when page loads
+      fetchingApi();
+    </script>
+  </body>
+</html>
