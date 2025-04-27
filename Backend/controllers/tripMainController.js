@@ -24,7 +24,7 @@ v2.config({
 // );
 
 export const tourAdd = async (req, res) => {
-
+console.log("12");
     const user = req.user;
     console.log({ user });
     console.log("line12");

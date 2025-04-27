@@ -10,7 +10,6 @@
     <!-- <------------ NavBar -------------->
     <nav class="navbar">
       <div class="logo">
-        <!-- <img src="/api/placeholder/200/200" alt="Logo" /> -->
         <div class="logo-text">Travel-Buddy</div>
       </div>
 
@@ -34,23 +33,12 @@
       <div class="tab active" id="enrolledTrip" onclick="fetchingEnrolled()">
         Your Upcoming Trips
       </div>
-      <div
-        class="tab"
-        id="createTrip"
-        onclick="fetchingApi(this)"
-        value="/tourList"
-      >
+      <div class="tab" id="createTrip" onclick="fetchingApi(this)" value="/tourList">
         Created Trips
       </div>
-      <div
-        class="tab"
-        id="ExploreTrip"
-        onclick="fetchingApi(this)"
-        value="/tours"
-      >
+      <div class="tab" id="ExploreTrip" onclick="fetchingApi(this)" value="/tours">
         Explore Trips
       </div>
-      <!-- <div class="tab">Unfiled Items</div> -->
     </div>
 
     <button class="add-trip-btn" id="addTripButton">
@@ -76,7 +64,6 @@
         navLinks.classList.toggle("active");
       });
 
-      // Close mobile menu when clicking on links
       document.querySelectorAll(".nav-links a").forEach((link) => {
         link.addEventListener("click", () => {
           hamburger.classList.remove("active");
@@ -84,58 +71,42 @@
         });
       });
 
-      // Close mobile menu when clicking outside
       document.addEventListener("click", (event) => {
         const isClickInsideNav = navLinks.contains(event.target);
         const isClickOnHamburger = hamburger.contains(event.target);
 
-        if (
-          !isClickInsideNav &&
-          !isClickOnHamburger &&
-          navLinks.classList.contains("active")
-        ) {
+        if (!isClickInsideNav && !isClickOnHamburger && navLinks.classList.contains("active")) {
           hamburger.classList.remove("active");
           navLinks.classList.remove("active");
         }
       });
 
-      // <------------------------- Hero Logic ----------------------------->
-
       function fetchingEnrolled() {
         try {
           console.log("Api calling.");
           let url = "http://localhost:3000/enrolled";
-          // Here by default we are fetching the original order but if the change is occur in selection then the event will trigger and the api will be updated and you will have updated results.
           fetch(url)
             .then((res) => res.json())
             .then((data) => {
               const { enrolledTours } = data;
-              //   userId = user._id;
-              console.log(enrolledTours);
               displayCard(enrolledTours);
             });
         } catch (error) {
           console.log(error);
         }
       }
-      // <!-- Calling the fetchAPI function to get the homeData  -->
       fetchingEnrolled();
 
       function fetchingApi(element) {
         try {
-          const endpoint = element.getAttribute("value"); // get the value attribute
-          const url = `http://localhost:3000${endpoint}`; // form the full URL
+          const endpoint = element.getAttribute("value");
+          const url = `http://localhost:3000${endpoint}`;
 
           console.log({ url });
-          console.log("Api calling.");
-          // Here by default we are fetching the original order but if the change is occur in selection then the event will trigger and the api will be updated and you will have updated results.
           fetch(url)
             .then((res) => res.json())
             .then((data) => {
-              // Change this part depending on the structure of your returned data\
-              console.log({ data });
-              const tours = data.createdTours || data.createdTours || [];
-              console.log({ tours });
+              const tours = data.createdTours || data.tours || [];
               displayCard(tours);
             });
         } catch (error) {
@@ -143,7 +114,6 @@
         }
       }
 
-      // Switch tabs
       const tabs = document.querySelectorAll(".tab");
       tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
@@ -162,107 +132,30 @@
 
           container.innerHTML += `
             <div class ="trip-card">
-            <div class="trip-details">
-                      <div class="trip-title" onclick="getTourDetail('${ele._id}')" >${ele.title}</div>
-                      <div class="trip-location">${ele.endLocation}</div>
-                      <div class="trip-date">${startDate} - ${endDate}</div>
-
-                      <div class="trip-actions" >
-                          <button class="action-btn" onclick="sendRequest('${ele._id}')">
-
-                              Send Request
-                          </button>
-                          <button class="action-btn" onclick="removeRequest('${ele._id}')">
-
-                              Remove Request
-                          </button>
-                          <button class="action-btn more-options" onclick="AddFavorite('${ele._id}')">
-                             
-                              Add Favorite
-                          </button>
-                      </div>
-                  </div>
-                  <img src="/api/placeholder/300/300" alt="${ele.images[0]}" class="trip-image">
-               </div>
-               `;
+              <div class="trip-details">
+                <div class="trip-title" onclick="getTourDetail('${ele._id}')" >${ele.title}</div>
+                <div class="trip-location">${ele.endLocation}</div>
+                <div class="trip-date">${startDate} - ${endDate}</div>
+                <div class="trip-actions">
+                  <button class="action-btn" onclick="sendRequest('${ele._id}')">Send Request</button>
+                  <button class="action-btn" onclick="removeRequest('${ele._id}')">Remove Request</button>
+                  <button class="action-btn more-options" onclick="AddFavorite('${ele._id}')">Add Favorite</button>
+                </div>
+              </div>
+              <img src="/api/placeholder/300/300" alt="${ele.images[0]}" class="trip-image">
+            </div>
+          `;
         });
       }
 
-      function displayCard2(data) {
-        const container = document.getElementById("tripsContainer");
-        container.innerHTML = "";
-
-        data.forEach((ele) => {
-          let startDate = ele.startDate.split("T")[0];
-          let endDate = ele.endDate.split("T")[0];
-          console.log(ele.title);
-          container.innerHTML += `
-            <div class ="trip-card">
-            <div class="trip-details">
-                      <div class="trip-title" onclick="getTourDetail('${ele._id}')" >${ele.title}</div>
-                      <div class="trip-location">${ele.endLocation}</div>
-                      <div class="trip-date">${startDate} - ${endDate}</div>
-
-                      <div class="trip-actions" >
-                          <button class="action-btn" onclick="sendRequest('${ele._id}')">
-
-                              Send Request
-                          </button>
-                          <button class="action-btn" onclick="removeRequest('${ele._id}')">
-
-                              Remove Request
-                          </button>
-                          <button class="action-btn more-options" onclick="AddFavorite('${ele._id}')">
-                              Add Favorite
-                          </button>
-                      </div>
-                  </div>
-                  <img src="/api/placeholder/300/300" alt="${ele.images[0]}" class="trip-image">
-               </div>
-               `;
-        });
-      }
-
-      function displayCard3(data) {
-        const container = document.getElementById("tripsContainer");
-        container.innerHTML = "";
-
-        data.forEach((ele) => {
-          let startDate = ele.startDate.split("T")[0];
-          let endDate = ele.endDate.split("T")[0];
-
-          container.innerHTML += `
-            <div class ="trip-card">
-            <div class="trip-details">
-                      <div class="trip-title" onclick="getTourDetail('${ele._id}')" >${ele.title}</div>
-                      <div class="trip-location">${ele.endLocation}</div>
-                      <div class="trip-date">${startDate} - ${endDate}</div>
-
-                      <div class="trip-actions" >
-                          <button class="action-btn" onclick="sendRequest('${ele._id}')">
-
-                              Send Request
-                          </button>
-                          <button class="action-btn"  onclick="removeRequest('${ele._id}')">
-                              Remove Request
-                          </button>
-                          <button class="action-btn more-options" onclick="AddFavorite('${ele._id}')" >
-                              Add Favorite
-                          </button>
-                      </div>
-                  </div>
-                  <img src="/api/placeholder/300/300" alt="${ele.images[0]}" class="trip-image">
-               </div>
-               `;
-        });
-      }
-
-      // Handle add trip button
       const addTripButton = document.getElementById("addTripButton");
-      const tripsContainer = document.getElementById("tripsContainer");
+
+      // ✅ Add trip navigation functionality
+      addTripButton.addEventListener("click", () => {
+        window.location.href = "./addtrip.html"; // Update this route if needed
+      });
 
       async function getTourDetail(newRoute) {
-        console.log(newRoute);
         window.location.href = `http://localhost:3000/tourDetail/${newRoute}`;
       }
 
@@ -271,12 +164,10 @@
           const res = await fetch(`http://localhost:3000/tours/${tourId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "include", // important.
+            credentials: "include",
           });
 
           const data = await res.json();
-          console.log({ res });
-          console.log({ data });
 
           if (res.ok) {
             alert("Your Request has been sent.");
@@ -293,15 +184,13 @@
           const res = await fetch(`http://localhost:3000/tours/${tourId}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            credentials: "include", // important.
+            credentials: "include",
           });
 
           const data = await res.json();
-          console.log({ res });
-          console.log({ data });
 
           if (res.ok) {
-            alert("Your Request has been removed  .");
+            alert("Your Request has been removed.");
           } else {
             alert(data.message);
           }
@@ -312,18 +201,16 @@
 
       async function AddFavorite(tourId) {
         try {
-          console.log("Adding to favorite.");
           const res = await fetch(`http://localhost:3000/favorites/${tourId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "include", // Ensures cookies (like token) are sent
+            credentials: "include",
           });
 
           const data = await res.json();
-          console.log({ res, data });
 
           if (res.ok) {
-            alert(data.message); // Shows whether it's added or removed
+            alert(data.message);
           } else {
             alert(data.message || "Something went wrong.");
           }
@@ -333,6 +220,5 @@
         }
       }
     </script>
-    /
   </body>
 </html>
